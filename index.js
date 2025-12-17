@@ -1,9 +1,9 @@
 // index.js
-export const handler = async (event) => {
+exports.handler = async (event) => {
   return {
     statusCode: 200,
     body: JSON.stringify({
-      message: "Hello from GitHub Actions! Deployment successful.",
+      message: "Hello from GitHub Actions! This is the classic syntax.",
     }),
   };
 };
