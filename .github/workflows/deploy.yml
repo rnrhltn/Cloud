@@ -1,0 +1,35 @@
+name: Deploy to AWS Lambda
+
+on:
+  push:
+    branches: [ "main" ] # Only runs when you push to the main branch
+
+permissions:
+  id-token: write   # This is required for OIDC (the passwordless login)
+  contents: read    # This allows GitHub to read your code
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Pull the code from your repo onto the GitHub machine
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Login to AWS using the IAM Role you created
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-1 # Change this to your preferred region
+
+      # 3. Zip the code (AWS Lambda requires a .zip file)
+      - name: Package code
+        run: zip -r deploy.zip . -x "*.git*"
+
+      # 4. Upload the zip file to your existing Lambda function
+      - name: Update Lambda Function
+        run: |
+          aws lambda update-function-code \
+            --function-name my-free-app \
+            --zip-file fileb://deploy.zip
